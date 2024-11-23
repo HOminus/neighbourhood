@@ -16,8 +16,6 @@ jobs:
       RUSTFLAGS: -Dwarnings
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.NEIGHBOURHOOD_TOKEN }}
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
