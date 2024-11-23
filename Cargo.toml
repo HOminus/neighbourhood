@@ -3,3 +3,6 @@ name = "neighbourhood"
 version = "0.0.0"
 edition = "2021"
 authors = ["Oliver Heilmann"]
+
+[dependencies]
+num-traits = "0.2"
