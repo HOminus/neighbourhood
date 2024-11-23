@@ -1,0 +1,34 @@
+name: Continous integration
+
+on:
+  push:
+    branches: main
+    tags:
+      - "v*"
+  pull_request:
+    branches: main
+
+jobs:
+  rust-checks:
+    name: Rust conformation checks
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -Dwarnings
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.NEIGHBOURHOOD_TOKEN }}
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+      - name: Install cargo-format
+        run: rustup component add rustfmt
+      - name: Cargot check formatting
+        run: cargo fmt --all --check
+      - name: Cargo check project
+        run: cargo check --all-targets
+      - name: Cargo lint project
+        run: cargo clippy --all-targets -- -D warnings
