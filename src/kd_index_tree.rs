@@ -46,4 +46,12 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
             brute_force_size: 0,
         }
     }
+
+    pub fn is_empty(&self) -> bool {
+        self.data.is_empty()
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
 }
