@@ -1,6 +1,8 @@
 use num_traits::Float;
 
-use alloc::vec::Vec;
+use alloc::{vec, vec::Vec};
+
+use crate::{distance, norm, NeighbourhoodParams};
 
 pub struct KdIndexTree<'a, T, const N: usize> {
     indices: Vec<usize>,
@@ -53,5 +55,95 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
 
     pub fn len(&self) -> usize {
         self.data.len()
+    }
+
+    pub fn neighbourhood_by_index(&self, point: &[T; N], epsilon: T) -> Vec<usize> {
+        let mut result = vec![];
+        let mut subtree_distance = [T::zero(); N];
+
+        let params = NeighbourhoodParams {
+            epsilon,
+            point,
+            row: 0,
+        };
+
+        self.find_neighbourhood_by_index_recursive(
+            &self.indices,
+            params,
+            &mut subtree_distance,
+            &mut result,
+        );
+        result
+    }
+
+    #[inline]
+    fn dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
+        &self,
+        subtree1: &[usize],
+        subtree2: &[usize],
+        split_point: &[T; N],
+        mut params: NeighbourhoodParams<T, N>,
+        subtree_distance: &mut [T; N],
+        result: &mut Vec<usize>,
+    ) {
+        let row = params.row;
+        params.next_row();
+
+        let row_value = subtree_distance[row];
+        subtree_distance[row] = Float::abs(params.point[row] - split_point[row]);
+        if norm(subtree_distance) <= params.epsilon {
+            self.find_neighbourhood_by_index_recursive(subtree2, params, subtree_distance, result);
+        }
+        subtree_distance[row] = row_value;
+
+        self.find_neighbourhood_by_index_recursive(subtree1, params, subtree_distance, result);
+    }
+
+    fn find_neighbourhood_by_index_recursive(
+        &self,
+        subtree: &[usize],
+        params: NeighbourhoodParams<T, N>,
+        subtree_distance: &mut [T; N],
+        result: &mut Vec<usize>,
+    ) {
+        if subtree.len() <= self.brute_force_size.max(1) {
+            for index in subtree {
+                let node_point = &self.data[*index];
+                if distance(node_point, params.point) <= params.epsilon {
+                    result.push(*index);
+                }
+            }
+        } else {
+            let row = params.row;
+            let split_index = subtree.len() / 2;
+            let split_node_index = subtree[split_index];
+            let split_node = &self.data[split_node_index];
+
+            if distance(split_node, params.point) <= params.epsilon {
+                result.push(split_node_index);
+            }
+
+            let subtree1 = &subtree[..split_index];
+            let subtree2 = &subtree[(split_index + 1)..];
+            if params.point[row] <= split_node[row] {
+                self.dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
+                    subtree1,
+                    subtree2,
+                    split_node,
+                    params,
+                    subtree_distance,
+                    result,
+                );
+            } else if params.point[row] > split_node[row] {
+                self.dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
+                    subtree2,
+                    subtree1,
+                    split_node,
+                    params,
+                    subtree_distance,
+                    result,
+                );
+            }
+        }
     }
 }
