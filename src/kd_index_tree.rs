@@ -147,3 +147,35 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use alloc::vec;
+
+    use super::KdIndexTree;
+    use crate::distance;
+
+    #[test]
+    fn simple_neighbourhood_query_test() {
+        let mut data = vec![];
+
+        let line = [-2.0, -1.0, 0.0, 1.0, 2.0];
+        for x in line {
+            for y in line {
+                for z in line {
+                    data.push([x, y, z]);
+                }
+            }
+        }
+
+        let kd_index_tree = KdIndexTree::new(&data);
+
+        let eps = 1.2;
+        let point = [0.0, 0.0, 0.0];
+        let neighbourhood = kd_index_tree.neighbourhood_by_index(&point, eps);
+        assert_eq!(neighbourhood.len(), 7);
+        for index in neighbourhood {
+            assert!(distance(&point, &data[index]) < eps);
+        }
+    }
+}
