@@ -21,9 +21,8 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+          components: rustfmt, clippy
           override: true
-      - name: Install cargo-format
-        run: rustup component add rustfmt
       - name: Cargot check formatting
         run: cargo fmt --all --check
       - name: Cargo check project
