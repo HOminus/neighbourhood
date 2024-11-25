@@ -30,3 +30,5 @@ jobs:
         run: cargo check --all-targets
       - name: Cargo lint project
         run: cargo clippy --all-targets -- -D warnings
+      - name: Cargo test project
+        run: cargo test
