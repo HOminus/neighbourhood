@@ -32,3 +32,6 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
       - name: Cargo test project
         run: cargo test
+      - uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          arguments: --all-features

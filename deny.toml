@@ -1,0 +1,22 @@
+[graph]
+all-features = true
+no-default-features = false
+
+[advisories]
+version = 2
+
+[bans]
+multiple-versions = "deny"
+wildcards = "deny"
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+
+[licenses]
+allow = [
+    "MIT",
+    "Apache-2.0"
+]
+confidence-threshold = 1.0
+private = { ignore = true }
