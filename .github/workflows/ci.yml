@@ -21,12 +21,16 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+          components: rustfmt, clippy
           override: true
-      - name: Install cargo-format
-        run: rustup component add rustfmt
       - name: Cargot check formatting
         run: cargo fmt --all --check
       - name: Cargo check project
         run: cargo check --all-targets
       - name: Cargo lint project
         run: cargo clippy --all-targets -- -D warnings
+      - name: Cargo test project
+        run: cargo test
+      - uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          arguments: --all-features
