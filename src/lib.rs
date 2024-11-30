@@ -3,8 +3,10 @@
 extern crate alloc;
 
 pub mod kd_index_tree;
+pub mod kd_tree;
 
 pub use kd_index_tree::KdIndexTree;
+pub use kd_tree::KdTree;
 
 use num_traits::Float;
 
@@ -15,7 +17,7 @@ struct NeighbourhoodParams<'a, T, const N: usize> {
     row: usize,
 }
 
-impl<'a, T, const N: usize> NeighbourhoodParams<'a, T, N> {
+impl<T, const N: usize> NeighbourhoodParams<'_, T, N> {
     fn next_row(&mut self) {
         self.row = (self.row + 1) % N;
     }
