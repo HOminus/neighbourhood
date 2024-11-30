@@ -17,7 +17,7 @@ struct NeighbourhoodParams<'a, T, const N: usize> {
     row: usize,
 }
 
-impl<'a, T, const N: usize> NeighbourhoodParams<'a, T, N> {
+impl<T, const N: usize> NeighbourhoodParams<'_, T, N> {
     fn next_row(&mut self) {
         self.row = (self.row + 1) % N;
     }
