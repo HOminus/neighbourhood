@@ -152,3 +152,35 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use alloc::vec;
+
+    use super::KdTree;
+    use crate::distance;
+
+    #[test]
+    fn simple_neighbourhood_query_test() {
+        let mut data = vec![];
+
+        let line = [-2.0, -1.0, 0.0, 1.0, 2.0];
+        for x in line {
+            for y in line {
+                for z in line {
+                    data.push([x, y, z]);
+                }
+            }
+        }
+
+        let kd_tree = KdTree::new(data);
+
+        let eps = 1.2;
+        let point = [0.0, 0.0, 0.0];
+        let neighbourhood = kd_tree.neighbourhood_by_index(&point, eps);
+        assert_eq!(neighbourhood.len(), 7);
+        for index in neighbourhood {
+            assert!(distance(&point, &kd_tree.data()[index]) <= eps);
+        }
+    }
+}
