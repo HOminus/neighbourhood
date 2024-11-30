@@ -3,7 +3,7 @@ Fast fixed size Kd-Trees.
 
 ## KdTree
 Data structure for super fast neighbourhood queries.
-````rust
+```rust
 let point_cloud: Vec<[f32; 3]> = ...;
 let kd_tree = KdIndexTree::new(&point_cloud);
 
