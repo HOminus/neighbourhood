@@ -3,7 +3,20 @@ name = "neighbourhood"
 version = "0.0.0"
 edition = "2021"
 authors = ["Oliver Heilmann"]
+rust-version = "1.78.0"
 publish = false
 
 [dependencies]
 num-traits = "0.2"
+
+[dev-dependencies]
+criterion = "0.5"
+rand = { version = "0.8", features = ["small_rng"] }
+
+[[bench]]
+name = "kd_tree"
+harness = false
+
+[[bench]]
+name = "kd_index_tree"
+harness = false
