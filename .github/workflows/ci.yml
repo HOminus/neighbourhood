@@ -9,7 +9,7 @@ on:
     branches: main
 
 jobs:
-  rust-checks:
+  neighbourhood-rust-checks:
     name: Rust conformation checks
     runs-on: ubuntu-latest
     env:
@@ -35,3 +35,36 @@ jobs:
         with:
           rust-version: "1.78.0"
           arguments: --all-features
+
+  comparison-validation:
+    needs: neighbourhood-rust-checks
+    name: Validate neighbourhood
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -Dwarnings
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        uses actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.78.0
+          components: rustfmt, clippy
+          override: true
+      - name: Cargot check formatting
+        working-dir: compare
+        run: cargo fmt --all --check
+      - name: Cargo check project
+        working-dir: compare
+        run: cargo check --all-targets
+      - name: Cargo lint project
+        working.dir: compare
+        run: cargo clippy --all-targets -- -D warnings
+      - uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          rust-version: "1.78.0"
+          arguments: --all-features
+          manifest-path: "compare/Cargo.toml"
+      - name: Run tests
+        working-dir: compare
+        run: cargo run --bin test --release --num-points 500000 --dim 10 --iterations 5 --kdtree kiddo
