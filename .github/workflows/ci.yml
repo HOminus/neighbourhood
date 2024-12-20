@@ -52,13 +52,13 @@ jobs:
           components: rustfmt, clippy
           override: true
       - name: Cargot check formatting
-        working-dir: compare
+        working-directory: compare
         run: cargo fmt --all --check
       - name: Cargo check project
-        working-dir: compare
+        working-directory: compare
         run: cargo check --all-targets
       - name: Cargo lint project
-        working.dir: compare
+        working-directory: compare
         run: cargo clippy --all-targets -- -D warnings
       - uses: EmbarkStudios/cargo-deny-action@v1
         with:
@@ -66,5 +66,5 @@ jobs:
           arguments: --all-features
           manifest-path: "compare/Cargo.toml"
       - name: Run tests
-        working-dir: compare
+        working-directory: compare
         run: cargo run --bin test --release --num-points 500000 --dim 10 --iterations 5 --kdtree kiddo
