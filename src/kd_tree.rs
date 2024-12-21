@@ -8,6 +8,10 @@ struct OffsetSubtree<'a, T, const N: usize>(usize, &'a [[T; N]]);
 
 pub struct KdTree<T, const N: usize> {
     data: Vec<[T; N]>,
+
+    /// Determines the size at which the KdIndexTree will switch
+    /// to a brute force approach instead of further recursing
+    /// the tree.
     pub brute_force_size: usize,
 }
 
@@ -33,6 +37,7 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         }
     }
 
+    /// Create a new KdTree.
     pub fn new(mut data: Vec<[T; N]>) -> Self {
         Self::select_median_with_row_recursive(&mut data, 0);
         Self {
@@ -41,18 +46,26 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         }
     }
 
+    /// Number of points in the KdTree.
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    /// Returns true if the Kd-tree is empty.
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 
+    /// Returns a read-only reference to the data. This can be used together
+    /// with the indices returned by [Self::neighbourhood_by_index] to get the actual 
+    /// points.
     pub fn data(&self) -> &[[T; N]] {
         self.data.as_slice()
     }
 
+    /// Returns the index of all points with a distance less than or equals to
+    /// epsilon from p. The list of indices can bes used toghether with [Self::data]
+    /// to retrieve the points.
     pub fn neighbourhood_by_index(&self, point: &[T; N], epsilon: T) -> Vec<usize> {
         let mut subtree_distance = [T::zero(); N];
         let mut result = vec![];

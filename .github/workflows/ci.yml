@@ -31,6 +31,8 @@ jobs:
         run: cargo clippy --all-targets -- -D warnings
       - name: Cargo test project
         run: cargo test
+      - name: Build documentation
+        run: cargo doc
       - uses: EmbarkStudios/cargo-deny-action@v1
         with:
           rust-version: "1.78.0"
