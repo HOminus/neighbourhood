@@ -67,4 +67,4 @@ jobs:
           manifest-path: "compare/Cargo.toml"
       - name: Run tests
         working-directory: compare
-        run: cargo run --bin test --release --num-points 500000 --dim 10 --iterations 5 --kdtree kiddo
+        run: cargo run --bin test --release -- --num-points 500000 --dim 10 --iterations 5 --kdtree kiddo
