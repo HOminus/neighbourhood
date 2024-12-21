@@ -6,7 +6,13 @@ use crate::{distance, norm, NeighbourhoodParams};
 
 pub struct KdIndexTree<'a, T, const N: usize> {
     indices: Vec<usize>,
+
+    /// Reference to the points indexed in the KdIndexTree.
     pub data: &'a [[T; N]],
+
+    /// Determines the size at which the KdIndexTree will switch
+    /// to a brute force approach instead of further recursing
+    /// the tree.
     pub brute_force_size: usize,
 }
 
@@ -38,6 +44,7 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         }
     }
 
+    /// Create a new KdIndexTree.
     pub fn new(data: &'a [[T; N]]) -> Self {
         let mut indices: Vec<_> = (0..data.len()).collect();
 
@@ -49,14 +56,19 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         }
     }
 
+    /// Returns true id the KdIndexTree is empty.
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
     }
 
+    /// Number of points in the KdIndexTree.
     pub fn len(&self) -> usize {
         self.data.len()
     }
 
+    /// Returns the index of all points with a distance less than or equals to
+    /// epsilon from p. The list of indices can bes used toghether with [Self::data]
+    /// to retrieve the points.
     pub fn neighbourhood_by_index(&self, point: &[T; N], epsilon: T) -> Vec<usize> {
         let mut result = vec![];
         let mut subtree_distance = [T::zero(); N];
