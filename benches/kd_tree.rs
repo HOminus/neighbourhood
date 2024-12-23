@@ -1,4 +1,4 @@
-use criterion::{criterion_group, criterion_main, Criterion};
+use criterion::{criterion_group, criterion_main, BenchmarkId, Criterion};
 use neighbourhood::KdTree;
 
 pub mod util;
@@ -25,7 +25,7 @@ fn neighbourhood_query(c: &mut Criterion) {
         let points: Vec<[f64; 3]> = random_points(NUM_POINTS, -10., 10., SEED);
         let kd_tree = KdTree::new(points);
         b.iter(|| {
-            let neighbours = kd_tree.neighbourhood_by_index(&[0., 0., 0.], EPSILON);
+            let neighbours = kd_tree.neighbourhood(&[0., 0., 0.], EPSILON);
             std::hint::black_box(neighbours);
         });
     });
