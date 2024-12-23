@@ -97,8 +97,8 @@ pub mod nh {
 
     impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T, N> {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
-            let result = self.0.neighbourhood_by_index(p, eps);
-            let mut points: Vec<_> = result.into_iter().map(|i| self.0.data()[i]).collect();
+            let result = self.0.neighbourhood(p, eps);
+            let mut points: Vec<_> = result.into_iter().cloned().collect();
             crate::sort_query_result(p, &mut points);
             points
         }
