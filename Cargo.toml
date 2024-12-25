@@ -1,10 +1,16 @@
 [package]
 name = "neighbourhood"
-version = "0.0.0"
+version = "0.0.1"
 edition = "2021"
 authors = ["Oliver Heilmann"]
 rust-version = "1.78.0"
-publish = false
+publish = true
+description = "Super fast fixed size K-d Trees for extremely large datasets."
+license = "MIT OR Apache-2.0"
+documentation = "https://docs.rs/neighbourhood"
+repository = "https://github.com/HOminus/neighbourhood"
+homepage = "https://github.com/HOminus/neighbourhood"
+
 
 [dependencies]
 num-traits = "0.2"

@@ -66,3 +66,6 @@ For optimal performance it is crucial to have a good `brute_force_size` paramete
 
 ## Correctness
 Neighbourhoods K-d Trees are validated by running extensive tests against other K-d tree implementations. At this point in time, no bugs are known.
+
+## Contributing
+Contributions are welcome. All contributions submitted to this project are assumed to be dual-licensed as "MIT OR Apache-2.0" unless explicitly stated otherwise.
