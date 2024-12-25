@@ -91,7 +91,7 @@ pub mod nh {
 
     impl<T: num_traits::Float, const N: usize> KdTree<T, N> {
         pub fn new(data: &[[T; N]]) -> Self {
-            Self(neighbourhood::KdTree::new(data.to_vec()))
+            Self(neighbourhood::KdTree::with_brute_force_size(data.to_vec(), 0))
         }
     }
 
@@ -110,7 +110,7 @@ pub mod nh {
 
     impl<'a, T: num_traits::Float, const N: usize> KdIndexTree<'a, T, N> {
         pub fn new(data: &'a [[T; N]]) -> Self {
-            Self(neighbourhood::KdIndexTree::new(data))
+            Self(neighbourhood::KdIndexTree::with_brute_force_size(data, 0))
         }
     }
 

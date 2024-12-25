@@ -13,6 +13,12 @@ pub struct KdTree<T, const N: usize> {
 }
 
 impl<T: Float + Clone, const N: usize> KdTree<T, N> {
+    pub const DEFAULT_BRUTE_FORCE_SIZE: usize = if core::mem::size_of::<T>() >= 64 {
+        25
+    } else {
+        34
+    };
+
     fn select_median_with_row_recursive(slice: &mut [[T; N]], row: usize) {
         let split_index = slice.len() / 2;
         slice.select_nth_unstable_by(split_index, |lhs, rhs| {
@@ -39,8 +45,15 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         Self::select_median_with_row_recursive(&mut data, 0);
         Self {
             data,
-            brute_force_size: 0,
+            brute_force_size: Self::DEFAULT_BRUTE_FORCE_SIZE,
         }
+    }
+
+    /// Create a new K-d Tree and sets the `brute_force_size`.
+    pub fn with_brute_force_size(data: Vec<[T; N]>, brute_force_size: usize) -> Self {
+        let mut self_ = Self::new(data);
+        self_.brute_force_size = brute_force_size;
+        self_
     }
 
     /// Number of points in the KdTree.

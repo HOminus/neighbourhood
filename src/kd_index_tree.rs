@@ -56,6 +56,13 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         }
     }
 
+    /// Create a new K-d Index Tree and sets the `brute_force_size`.
+    pub fn with_brute_force_size(data: &'a [[T; N]], brute_force_size: usize) -> Self {
+        let mut self_ = Self::new(data);
+        self_.brute_force_size = brute_force_size;
+        self_
+    }
+
     /// Returns true id the KdIndexTree is empty.
     pub fn is_empty(&self) -> bool {
         self.data.is_empty()
