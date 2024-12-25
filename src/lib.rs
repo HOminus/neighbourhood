@@ -15,13 +15,7 @@ use num_traits::Float;
 struct NeighbourhoodParams<'a, T, const N: usize> {
     point: &'a [T; N],
     epsilon: T,
-    row: usize,
-}
-
-impl<T, const N: usize> NeighbourhoodParams<'_, T, N> {
-    fn next_row(&mut self) {
-        self.row = (self.row + 1) % N;
-    }
+    brute_force_size: usize,
 }
 
 #[inline]

@@ -40,7 +40,7 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         }
     }
 
-    /// Create a new KdTree.
+    /// Create a new K-d Tree.
     pub fn new(mut data: Vec<[T; N]>) -> Self {
         Self::select_median_with_row_recursive(&mut data, 0);
         Self {
@@ -82,58 +82,61 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         let params = NeighbourhoodParams {
             point,
             epsilon,
-            row: 0,
+            brute_force_size: self.brute_force_size,
         };
-        self.find_neighbourhood_recursive(
+
+        Self::find_neighbourhood_recursive(
             self.data.as_slice(),
-            params,
+            &params,
             &mut subtree_distance,
             &mut result,
+            0,
         );
         result
     }
 
     #[inline]
     fn dispatch_find_neighbourhood_recursive_on_subtrees<'a>(
-        &'a self,
         subtree_offset1: &'a [[T; N]],
         subtree_offset2: &'a [[T; N]],
         split_point: &[T; N],
-        mut params: NeighbourhoodParams<T, N>,
+        params: &NeighbourhoodParams<T, N>,
         subtree_distance: &mut [T; N],
         result: &mut Vec<&'a [T; N]>,
+        row: usize,
     ) {
-        let row = params.row;
-        params.next_row();
+        let next_row = (row + 1) % N;
 
         let row_value = subtree_distance[row];
         subtree_distance[row] = Float::abs(params.point[row] - split_point[row]);
         if norm(subtree_distance) <= params.epsilon {
-            self.find_neighbourhood_recursive(
+            Self::find_neighbourhood_recursive(
                 subtree_offset2,
                 params,
                 subtree_distance,
                 result,
+                next_row
             );
         }
         subtree_distance[row] = row_value;
 
-        self.find_neighbourhood_recursive(
+        Self::find_neighbourhood_recursive(
             subtree_offset1,
             params,
             subtree_distance,
             result,
+            next_row,
         );
     }
 
     fn find_neighbourhood_recursive<'a>(
-        &'a self,
         subtree: &'a [[T; N]],
-        params: NeighbourhoodParams<T, N>,
+        params: &NeighbourhoodParams<T, N>,
         subtree_distance: &mut [T; N],
         result: &mut Vec<&'a [T; N]>,
+        row: usize,
     ) {
-        if subtree.len() <= self.brute_force_size.max(1) {
+        if subtree.len() <= params.brute_force_size.max(1) {
             for pt in subtree.iter() {
                 if distance(params.point, pt) <= params.epsilon {
                     result.push(pt);
@@ -147,26 +150,27 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
                 result.push(split_point);
             }
 
-            let row = params.row;
             let subtree1 = &subtree[..split_index];
             let subtree2 = &subtree[(split_index + 1)..];
             if params.point[row] <= split_point[row] {
-                self.dispatch_find_neighbourhood_recursive_on_subtrees(
+                Self::dispatch_find_neighbourhood_recursive_on_subtrees(
                     subtree1,
                     subtree2,
                     split_point,
                     params,
                     subtree_distance,
                     result,
+                    row,
                 );
             } else if params.point[row] > split_point[row] {
-                self.dispatch_find_neighbourhood_recursive_on_subtrees(
+                Self::dispatch_find_neighbourhood_recursive_on_subtrees(
                     subtree2,
                     subtree1,
                     split_point,
                     params,
                     subtree_distance,
                     result,
+                    row
                 );
             }
         }

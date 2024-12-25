@@ -44,7 +44,7 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         }
     }
 
-    /// Create a new KdIndexTree.
+    /// Create a new K-d Index Tree.
     pub fn new(data: &'a [[T; N]]) -> Self {
         let mut indices: Vec<_> = (0..data.len()).collect();
 
@@ -83,60 +83,62 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         let params = NeighbourhoodParams {
             epsilon,
             point,
-            row: 0,
+            brute_force_size: self.brute_force_size
         };
 
-        self.find_neighbourhood_by_index_recursive(
+        Self::find_neighbourhood_by_index_recursive(
+            self.data,
             &self.indices,
-            params,
+            &params,
             &mut subtree_distance,
             &mut result,
+            0,
         );
         result
     }
 
     #[inline]
     fn dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
-        &self,
+        full_data: &[[T; N]],
         subtree1: &[usize],
         subtree2: &[usize],
         split_point: &[T; N],
-        mut params: NeighbourhoodParams<T, N>,
+        params: &NeighbourhoodParams<T, N>,
         subtree_distance: &mut [T; N],
         result: &mut Vec<usize>,
+        row: usize,
     ) {
-        let row = params.row;
-        params.next_row();
 
+        let next_row = (row + 1) % N;
         let row_value = subtree_distance[row];
         subtree_distance[row] = Float::abs(params.point[row] - split_point[row]);
         if norm(subtree_distance) <= params.epsilon {
-            self.find_neighbourhood_by_index_recursive(subtree2, params, subtree_distance, result);
+            Self::find_neighbourhood_by_index_recursive(full_data, subtree2, params, subtree_distance, result, next_row);
         }
         subtree_distance[row] = row_value;
 
-        self.find_neighbourhood_by_index_recursive(subtree1, params, subtree_distance, result);
+        Self::find_neighbourhood_by_index_recursive(full_data, subtree1, params, subtree_distance, result, next_row);
     }
 
     fn find_neighbourhood_by_index_recursive(
-        &self,
+        full_data: &[[T; N]],
         subtree: &[usize],
-        params: NeighbourhoodParams<T, N>,
+        params: &NeighbourhoodParams<T, N>,
         subtree_distance: &mut [T; N],
         result: &mut Vec<usize>,
+        row: usize,
     ) {
-        if subtree.len() <= self.brute_force_size.max(1) {
+        if subtree.len() <= params.brute_force_size.max(1) {
             for index in subtree {
-                let node_point = &self.data[*index];
+                let node_point = &full_data[*index];
                 if distance(node_point, params.point) <= params.epsilon {
                     result.push(*index);
                 }
             }
         } else {
-            let row = params.row;
             let split_index = subtree.len() / 2;
             let split_node_index = subtree[split_index];
-            let split_node = &self.data[split_node_index];
+            let split_node = &full_data[split_node_index];
 
             if distance(split_node, params.point) <= params.epsilon {
                 result.push(split_node_index);
@@ -145,22 +147,26 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
             let subtree1 = &subtree[..split_index];
             let subtree2 = &subtree[(split_index + 1)..];
             if params.point[row] <= split_node[row] {
-                self.dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
+                Self::dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
+                    full_data,
                     subtree1,
                     subtree2,
                     split_node,
                     params,
                     subtree_distance,
                     result,
+                    row,
                 );
             } else if params.point[row] > split_node[row] {
-                self.dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
+                Self::dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
+                    full_data,
                     subtree2,
                     subtree1,
                     split_node,
                     params,
                     subtree_distance,
                     result,
+                    row,
                 );
             }
         }
