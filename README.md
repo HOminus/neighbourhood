@@ -30,7 +30,7 @@ On large datasets neighbourhoods K-d tree typically outperforms other implementa
 
 ### Build K-d Tree
 Time measurments in seconds.
-```
+```text
 Points      | neighbourhood |  kd-tree   |      kiddo      |
             |    KdTree     |            | ImmutableKdTree |
 ------------------------------------------------------------
@@ -46,7 +46,7 @@ Points      | neighbourhood |  kd-tree   |      kiddo      |
 
 ### Query all points within a range
 100'000'000 points in a cube with edge length 20. Unit: microseconds per lookup.
-```
+```text
 epsilon | neighbourhood |  kd-tree  |      kiddo      |
         |     KdTree    |           | ImmutableKdTree |
 -------------------------------------------------------

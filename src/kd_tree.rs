@@ -66,9 +66,7 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         self.data.is_empty()
     }
 
-    /// Returns a read-only reference to the data. This can be used together
-    /// with the indices returned by [Self::neighbourhood_by_index] to get the actual
-    /// points.
+    /// Returns a read-only reference to the data.
     pub fn data(&self) -> &[[T; N]] {
         self.data.as_slice()
     }
