@@ -15,24 +15,24 @@ use num_traits::Float;
 struct NeighbourhoodParams<'a, T, const N: usize> {
     point: &'a [T; N],
     epsilon: T,
-    row: usize,
+    brute_force_size: usize,
 }
 
-impl<T, const N: usize> NeighbourhoodParams<'_, T, N> {
-    fn next_row(&mut self) {
-        self.row = (self.row + 1) % N;
-    }
-}
-
+#[inline]
 fn distance<T: Float, const N: usize>(v1: &[T; N], v2: &[T; N]) -> T {
-    let dst_squared = v1
-        .iter()
-        .zip(v2.iter())
-        .fold(T::zero(), |acc, (v1, v2)| acc + (*v1 - *v2).powi(2));
-    dst_squared.sqrt()
+    let mut dst = T::zero();
+    for i in 0..N {
+        dst = dst + (v1[i] - v2[i]).powi(2);
+    }
+    dst.sqrt()
 }
 
+#[allow(clippy::needless_range_loop)]
+#[inline]
 fn norm<T: Float, const N: usize>(v: &[T; N]) -> T {
-    let norm_squared = v.iter().fold(T::zero(), |acc, x| acc + (*x).powi(2));
-    norm_squared.sqrt()
+    let mut norm = T::zero();
+    for i in 0..N {
+        norm = norm + v[i].powi(2);
+    }
+    norm.sqrt()
 }

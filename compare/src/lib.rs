@@ -91,14 +91,17 @@ pub mod nh {
 
     impl<T: num_traits::Float, const N: usize> KdTree<T, N> {
         pub fn new(data: &[[T; N]]) -> Self {
-            Self(neighbourhood::KdTree::new(data.to_vec()))
+            Self(neighbourhood::KdTree::with_brute_force_size(
+                data.to_vec(),
+                0,
+            ))
         }
     }
 
     impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T, N> {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
-            let result = self.0.neighbourhood_by_index(p, eps);
-            let mut points: Vec<_> = result.into_iter().map(|i| self.0.data()[i]).collect();
+            let result = self.0.neighbourhood(p, eps);
+            let mut points: Vec<_> = result.into_iter().cloned().collect();
             crate::sort_query_result(p, &mut points);
             points
         }
@@ -110,7 +113,7 @@ pub mod nh {
 
     impl<'a, T: num_traits::Float, const N: usize> KdIndexTree<'a, T, N> {
         pub fn new(data: &'a [[T; N]]) -> Self {
-            Self(neighbourhood::KdIndexTree::new(data))
+            Self(neighbourhood::KdIndexTree::with_brute_force_size(data, 0))
         }
     }
 

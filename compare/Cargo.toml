@@ -12,3 +12,5 @@ kiddo = "5.0"
 kd-tree = "0.6"
 kdtree = "0.7"
 num-traits = "0.2"
+ordered-float = "4"
+
