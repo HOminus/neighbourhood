@@ -106,7 +106,7 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         let next_row = (row + 1) % N;
 
         let row_value = subtree_distance[row];
-        subtree_distance[row] = Float::abs(params.point[row] - split_point[row]);
+        subtree_distance[row] = params.point[row] - split_point[row];
         if norm(subtree_distance) <= params.epsilon {
             Self::find_neighbourhood_recursive(
                 subtree_offset2,
