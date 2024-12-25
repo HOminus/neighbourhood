@@ -27,6 +27,7 @@ fn distance<T: Float, const N: usize>(v1: &[T; N], v2: &[T; N]) -> T {
     dst.sqrt()
 }
 
+#[allow(clippy::needless_range_loop)]
 #[inline]
 fn norm<T: Float, const N: usize>(v: &[T; N]) -> T {
     let mut norm = T::zero();

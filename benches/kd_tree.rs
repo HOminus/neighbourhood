@@ -37,7 +37,9 @@ fn optimal_brute_force_size(c: &mut Criterion) {
 
     let mut group = c.benchmark_group("BruteForceSize");
     for brute_force_size in 1..=50 {
-        group.bench_with_input(BenchmarkId::from_parameter(brute_force_size), &brute_force_size, 
+        group.bench_with_input(
+            BenchmarkId::from_parameter(brute_force_size),
+            &brute_force_size,
             |b, brute_force_size| {
                 let points: Vec<[f64; 3]> = random_points(NUM_POINTS, -10., 10., 0);
                 let mut kd_tree = KdTree::new(points.clone());
@@ -48,9 +50,15 @@ fn optimal_brute_force_size(c: &mut Criterion) {
                         std::hint::black_box(neighbours);
                     }
                 });
-            });
+            },
+        );
     }
 }
 
-criterion_group!(benches, buildup, neighbourhood_query, optimal_brute_force_size);
+criterion_group!(
+    benches,
+    buildup,
+    neighbourhood_query,
+    optimal_brute_force_size
+);
 criterion_main!(benches);

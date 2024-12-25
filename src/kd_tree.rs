@@ -115,7 +115,7 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
                 params,
                 subtree_distance,
                 result,
-                next_row
+                next_row,
             );
         }
         subtree_distance[row] = row_value;
@@ -170,7 +170,7 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
                     params,
                     subtree_distance,
                     result,
-                    row
+                    row,
                 );
             }
         }

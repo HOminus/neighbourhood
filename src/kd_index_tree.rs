@@ -83,7 +83,7 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         let params = NeighbourhoodParams {
             epsilon,
             point,
-            brute_force_size: self.brute_force_size
+            brute_force_size: self.brute_force_size,
         };
 
         Self::find_neighbourhood_by_index_recursive(
@@ -97,6 +97,7 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         result
     }
 
+    #[allow(clippy::too_many_arguments)]
     #[inline]
     fn dispatch_find_neighbourhood_by_index_recursive_on_subtrees(
         full_data: &[[T; N]],
@@ -108,16 +109,29 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
         result: &mut Vec<usize>,
         row: usize,
     ) {
-
         let next_row = (row + 1) % N;
         let row_value = subtree_distance[row];
         subtree_distance[row] = Float::abs(params.point[row] - split_point[row]);
         if norm(subtree_distance) <= params.epsilon {
-            Self::find_neighbourhood_by_index_recursive(full_data, subtree2, params, subtree_distance, result, next_row);
+            Self::find_neighbourhood_by_index_recursive(
+                full_data,
+                subtree2,
+                params,
+                subtree_distance,
+                result,
+                next_row,
+            );
         }
         subtree_distance[row] = row_value;
 
-        Self::find_neighbourhood_by_index_recursive(full_data, subtree1, params, subtree_distance, result, next_row);
+        Self::find_neighbourhood_by_index_recursive(
+            full_data,
+            subtree1,
+            params,
+            subtree_distance,
+            result,
+            next_row,
+        );
     }
 
     fn find_neighbourhood_by_index_recursive(
