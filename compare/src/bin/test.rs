@@ -24,7 +24,7 @@ fn run_test<const N: usize>(num_points: usize, iterations: u64, kdtrees: &[Strin
         let points: Vec<[f64; N]> = make_points(num_points, -10., 10., seed);
 
         // For testing the brute_force_size is set to zero. It is very
-        // unlikely that a higher  brute_force_size value does 
+        // unlikely that a higher  brute_force_size value does
         // introduce an error.
         let mut kdtree_list = vec![
             Box::new(compare::nh::KdTree::new(&points))

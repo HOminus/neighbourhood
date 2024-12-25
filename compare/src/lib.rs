@@ -91,7 +91,10 @@ pub mod nh {
 
     impl<T: num_traits::Float, const N: usize> KdTree<T, N> {
         pub fn new(data: &[[T; N]]) -> Self {
-            Self(neighbourhood::KdTree::with_brute_force_size(data.to_vec(), 0))
+            Self(neighbourhood::KdTree::with_brute_force_size(
+                data.to_vec(),
+                0,
+            ))
         }
     }
 
