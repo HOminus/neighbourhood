@@ -5,10 +5,10 @@ Super fast fixed size K-d Trees for extremely large datasets.
 Data structure for super fast neighbourhood queries.
 ```rust,ignore
 let point_cloud: Vec<[f32; 3]> = ...;
-let kd_tree = KdIndexTree::new(&point_cloud);
+let kd_tree = KdTree::new(point_cloud);
 
 // Find all points in point_cloud with an euclidean distance <= 2 from [1, -2, 3]
-for point_index in kd_tree.neighbourhood_by_index(&[1.0, -2.0, 3.0], 2.0) {
+for point_index in kd_tree.neighbourhood(&[1.0, -2.0, 3.0], 2.0) {
   println!("Found point {:?}.", point_cloud[point_index]);
 }
 ```
@@ -62,7 +62,7 @@ epsilon | neighbourhood |  kd-tree  |      kiddo      |
 ```
 
 ## Performance
-For optimal performance it is crucial to have a good `brute_force_size` parameter. The `brute_force_size` can always be changed, even multiple times after construction of the KdTree. By default the value is chosen, s.t. 3 dimensional points will perform very well. But benchmarks showed that even with a non-optimal `brute_force_size`, Neighbourhoods K-d Trees do perform very well. An optimal `brute_force_size` value depends on the query parameters. For maximum performance case by case benchmarking is strongly recommended.
+For optimal performance it is crucial to have a good `brute_force_size` parameter. The `brute_force_size` can always be changed, even multiple times after construction of the KdTree. By default the value is chosen, s.t. 3 dimensional points will perform very well. But benchmarks showed that even with a non-optimal `brute_force_size`, Neighbourhoods K-d Trees do perform well. An optimal `brute_force_size` value depends on the query parameters. For maximum performance case by case benchmarking is strongly recommended.
 
 ## Correctness
 Neighbourhoods K-d Trees are validated by running extensive tests against other K-d tree implementations. At this point in time, no bugs are known.
