@@ -86,7 +86,6 @@ pub trait UnifiedKdTreeTestApi<T: num_traits::Float, const N: usize> {
     fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]>;
 
     fn count_within(&self, p: &[T; N], eps: T) -> usize;
-
 }
 
 pub mod nh {
@@ -185,7 +184,9 @@ pub mod kiddo {
             + kiddo::float_leaf_slice::leaf_slice::LeafSliceFloatChunk<u64, N>,
     {
         fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]> {
-            let result = self.0.within_unsorted::<kiddo::SquaredEuclidean>(p, eps * eps);
+            let result = self
+                .0
+                .within_unsorted::<kiddo::SquaredEuclidean>(p, eps * eps);
             let mut points: Vec<_> = result
                 .into_iter()
                 .map(|n| points[n.item as usize])
@@ -195,7 +196,9 @@ pub mod kiddo {
         }
 
         fn count_within(&self, p: &[T; N], eps: T) -> usize {
-            let result = self.0.within_unsorted::<kiddo::SquaredEuclidean>(p, eps * eps);
+            let result = self
+                .0
+                .within_unsorted::<kiddo::SquaredEuclidean>(p, eps * eps);
             result.len()
         }
     }

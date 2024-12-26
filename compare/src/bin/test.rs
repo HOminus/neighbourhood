@@ -104,10 +104,7 @@ fn run_count_test<const N: usize>(num_points: usize, iterations: u64, kdtrees: &
 
         let eps = 0.1;
         for p in points.iter() {
-            let result: Vec<_> = kdtree_list
-                .iter()
-                .map(|t| t.count_within(p, eps))
-                .collect();
+            let result: Vec<_> = kdtree_list.iter().map(|t| t.count_within(p, eps)).collect();
 
             for i in 1..result.len() {
                 assert_eq!(result[0], result[i], "Index {i}");
