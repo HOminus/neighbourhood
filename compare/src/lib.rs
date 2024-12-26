@@ -84,6 +84,9 @@ pub trait UnifiedKdTreeTestApi<T: num_traits::Float, const N: usize> {
     //fn new(data: &'a [[T; N]]) -> Self;
 
     fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]>;
+
+    fn count_within(&self, p: &[T; N], eps: T) -> usize;
+
 }
 
 pub mod nh {
@@ -105,6 +108,10 @@ pub mod nh {
             crate::sort_query_result(p, &mut points);
             points
         }
+
+        fn count_within(&self, p: &[T; N], eps: T) -> usize {
+            self.0.count_neighbourhood(p, eps)
+        }
     }
 
     pub struct KdIndexTree<'a, T: num_traits::Float, const N: usize>(
@@ -125,6 +132,10 @@ pub mod nh {
             let mut points: Vec<_> = result.into_iter().map(|i| self.0.data[i]).collect();
             crate::sort_query_result(p, &mut points);
             points
+        }
+
+        fn count_within(&self, p: &[T; N], eps: T) -> usize {
+            self.0.count_neighbourhood(p, eps)
         }
     }
 }
@@ -174,13 +185,18 @@ pub mod kiddo {
             + kiddo::float_leaf_slice::leaf_slice::LeafSliceFloatChunk<u64, N>,
     {
         fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]> {
-            let result = self.0.within::<kiddo::SquaredEuclidean>(p, eps * eps);
+            let result = self.0.within_unsorted::<kiddo::SquaredEuclidean>(p, eps * eps);
             let mut points: Vec<_> = result
                 .into_iter()
                 .map(|n| points[n.item as usize])
                 .collect();
             crate::sort_query_result(p, &mut points);
             points
+        }
+
+        fn count_within(&self, p: &[T; N], eps: T) -> usize {
+            let result = self.0.within_unsorted::<kiddo::SquaredEuclidean>(p, eps * eps);
+            result.len()
         }
     }
 }
@@ -207,6 +223,14 @@ pub mod kdtree {
             let mut points: Vec<_> = result.into_iter().map(|(_, v)| points[*v]).collect();
             crate::sort_query_result(p, &mut points);
             points
+        }
+
+        fn count_within(&self, p: &[T; N], eps: T) -> usize {
+            let result = self
+                .0
+                .within(p, eps * eps, &kdtree::distance::squared_euclidean)
+                .unwrap();
+            result.len()
         }
     }
 }
@@ -453,6 +477,10 @@ pub mod kd_tree {
             };
             crate::sort_query_result(p, &mut points);
             points
+        }
+
+        fn count_within(&self, p: &[T; N], eps: T) -> usize {
+            self.query_within(p, eps, &[]).len()
         }
     }
 }
