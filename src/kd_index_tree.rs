@@ -424,9 +424,9 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
             result.insert(pos, (dst, index));
             result.pop().unwrap();
         } else {
-            let pos = result.binary_search_by(|(lhs, _)| {
-                lhs.partial_cmp(&dst).unwrap()
-            }).unwrap_or_else(|i| i);
+            let pos = result
+                .binary_search_by(|(lhs, _)| lhs.partial_cmp(&dst).unwrap())
+                .unwrap_or_else(|i| i);
 
             result.insert(pos, (dst, index));
             let _ = result.pop();

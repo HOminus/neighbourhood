@@ -360,9 +360,9 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
             result.insert(pos, (dst, point));
             let _ = result.pop();
         } else {
-            let pos = result.binary_search_by(|(lhs, _)| {
-                lhs.partial_cmp(&dst).unwrap()
-            }).unwrap_or_else(|i| i);
+            let pos = result
+                .binary_search_by(|(lhs, _)| lhs.partial_cmp(&dst).unwrap())
+                .unwrap_or_else(|i| i);
 
             result.insert(pos, (dst, point));
             let _ = result.pop();
