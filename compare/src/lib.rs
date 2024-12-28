@@ -80,18 +80,20 @@ pub fn sort_query_result<T: num_traits::Float, const N: usize>(p: &[T; N], pts: 
 }
 
 // A unified KdTree Api. Useful for testing.
-pub trait UnifiedKdTreeTestApi<T: num_traits::Float, const N: usize> {
+pub trait UnifiedKdTreeTestApi<T: num_traits::Float + std::fmt::Debug, const N: usize> {
     //fn new(data: &'a [[T; N]]) -> Self;
 
     fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]>;
 
     fn count_within(&self, p: &[T; N], eps: T) -> usize;
+
+    fn knn(&self, p: &[T; N], k: usize, points: &[[T; N]]) -> Vec<[T; N]>;
 }
 
 pub mod nh {
     pub struct KdTree<T: num_traits::Float, const N: usize>(neighbourhood::KdTree<T, N>);
 
-    impl<T: num_traits::Float, const N: usize> KdTree<T, N> {
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> KdTree<T, N> {
         pub fn new(data: &[[T; N]]) -> Self {
             Self(neighbourhood::KdTree::with_brute_force_size(
                 data.to_vec(),
@@ -100,7 +102,9 @@ pub mod nh {
         }
     }
 
-    impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T, N> {
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
+        for KdTree<T, N>
+    {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
             let result = self.0.neighbourhood(p, eps);
             let mut points: Vec<_> = result.into_iter().cloned().collect();
@@ -111,19 +115,26 @@ pub mod nh {
         fn count_within(&self, p: &[T; N], eps: T) -> usize {
             self.0.count_neighbourhood(p, eps)
         }
+
+        fn knn(&self, p: &[T; N], k: usize, _: &[[T; N]]) -> Vec<[T; N]> {
+            let result = self.0.knn(p, k);
+            let mut points: Vec<_> = result.into_iter().map(|v| *v.1).collect();
+            crate::sort_query_result(p, &mut points);
+            points
+        }
     }
 
     pub struct KdIndexTree<'a, T: num_traits::Float, const N: usize>(
         neighbourhood::KdIndexTree<'a, T, N>,
     );
 
-    impl<'a, T: num_traits::Float, const N: usize> KdIndexTree<'a, T, N> {
+    impl<'a, T: num_traits::Float + std::fmt::Debug, const N: usize> KdIndexTree<'a, T, N> {
         pub fn new(data: &'a [[T; N]]) -> Self {
             Self(neighbourhood::KdIndexTree::with_brute_force_size(data, 0))
         }
     }
 
-    impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
         for KdIndexTree<'_, T, N>
     {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
@@ -135,6 +146,13 @@ pub mod nh {
 
         fn count_within(&self, p: &[T; N], eps: T) -> usize {
             self.0.count_neighbourhood(p, eps)
+        }
+
+        fn knn(&self, p: &[T; N], k: usize, _: &[[T; N]]) -> Vec<[T; N]> {
+            let result = self.0.knn_by_index(p, k);
+            let mut points: Vec<_> = result.into_iter().map(|v| self.0.data[v.1]).collect();
+            crate::sort_query_result(p, &mut points);
+            points
         }
     }
 }
@@ -201,6 +219,18 @@ pub mod kiddo {
                 .within_unsorted::<kiddo::SquaredEuclidean>(p, eps * eps);
             result.len()
         }
+
+        fn knn(&self, p: &[T; N], k: usize, points: &[[T; N]]) -> Vec<[T; N]> {
+            let result = self
+                .0
+                .nearest_n::<kiddo::SquaredEuclidean>(p, core::num::NonZero::new(k).unwrap());
+            let mut points: Vec<_> = result
+                .into_iter()
+                .map(|v| points[v.item as usize])
+                .collect();
+            crate::sort_query_result(p, &mut points);
+            points
+        }
     }
 }
 
@@ -217,7 +247,9 @@ pub mod kdtree {
         }
     }
 
-    impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T, N> {
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
+        for KdTree<T, N>
+    {
         fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]> {
             let result = self
                 .0
@@ -234,6 +266,16 @@ pub mod kdtree {
                 .within(p, eps * eps, &kdtree::distance::squared_euclidean)
                 .unwrap();
             result.len()
+        }
+
+        fn knn(&self, p: &[T; N], k: usize, points: &[[T; N]]) -> Vec<[T; N]> {
+            let result = self
+                .0
+                .nearest(p, k, &kdtree::distance::squared_euclidean)
+                .unwrap();
+            let mut points: Vec<_> = result.into_iter().map(|(_, v)| points[*v]).collect();
+            crate::sort_query_result(p, &mut points);
+            points
         }
     }
 }
@@ -327,7 +369,10 @@ pub mod kd_tree {
     #[allow(clippy::missing_transmute_annotations)]
     impl<T, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T>
     where
-        T: num_traits::Float + num_traits::float::FloatCore + num_traits::NumAssign,
+        T: num_traits::Float
+            + num_traits::float::FloatCore
+            + num_traits::NumAssign
+            + std::fmt::Debug,
     {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
             let mut points = unsafe {
@@ -484,6 +529,143 @@ pub mod kd_tree {
 
         fn count_within(&self, p: &[T; N], eps: T) -> usize {
             self.query_within(p, eps, &[]).len()
+        }
+
+        fn knn(&self, p: &[T; N], k: usize, _: &[[T; N]]) -> Vec<[T; N]> {
+            let mut points = unsafe {
+                match self {
+                    Self::One(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 1]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Two(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 2]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Three(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 3]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Four(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 4]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Five(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 5]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Six(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 6]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Seven(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 7]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Eight(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 8]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Nine(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 9]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Ten(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 10]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Eleven(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 11]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Twelve(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 12]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Thirteen(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 13]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Fourteen(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 14]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Fifteen(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 15]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                    Self::Sixteen(kdtree) => {
+                        let result = kdtree.nearests(std::mem::transmute::<_, &[T; 16]>(p), k);
+                        let points: Vec<_> = result
+                            .into_iter()
+                            .map(|v| *std::mem::transmute::<_, &[T; N]>(v.item))
+                            .collect();
+                        points
+                    }
+                }
+            };
+            crate::sort_query_result(p, &mut points);
+            points
         }
     }
 }

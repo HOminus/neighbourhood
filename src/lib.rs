@@ -18,6 +18,13 @@ struct NeighbourhoodParams<'a, T, const N: usize> {
     brute_force_size: usize,
 }
 
+#[derive(Debug, Copy, Clone)]
+struct KnnParams<'a, T, const N: usize> {
+    point: &'a [T; N],
+    k: core::num::NonZero<usize>,
+    brute_force_size: usize,
+}
+
 #[inline]
 fn distance<T: Float, const N: usize>(v1: &[T; N], v2: &[T; N]) -> T {
     let mut dst = T::zero();
