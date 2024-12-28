@@ -69,11 +69,26 @@ fn optimal_brute_force_size(c: &mut Criterion) {
     }
 }
 
+fn knn_query(c: &mut Criterion) {
+    const NUM_POINTS: usize = 200_000;
+    const SEED: u64 = 0;
+    const K: usize = 10;
+    c.bench_function("KnnQuery", |b| {
+        let points: Vec<[f64; 3]> = random_points(NUM_POINTS, -10., 10., SEED);
+        let kd_tree = KdTree::new(points);
+        b.iter(|| {
+            let neighbours = kd_tree.knn(&[0., 0., 0.], K);
+            std::hint::black_box(neighbours);
+        });
+    });
+}
+
 criterion_group!(
     benches,
     buildup,
     neighbourhood_query,
     count_neighbourhood_query,
-    optimal_brute_force_size
+    optimal_brute_force_size,
+    knn_query
 );
 criterion_main!(benches);
