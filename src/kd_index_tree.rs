@@ -416,13 +416,20 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
                 .position(|p| dst < p.0)
                 .unwrap_or(result.len());
             result.insert(pos, (dst, index));
-        } else {
+        } else if params.k.get() <= 20 {
             let pos = result
                 .iter()
                 .position(|p| dst < p.0)
                 .unwrap_or(result.len());
             result.insert(pos, (dst, index));
             result.pop().unwrap();
+        } else {
+            let pos = result.binary_search_by(|(lhs, _)| {
+                lhs.partial_cmp(&dst).unwrap()
+            }).unwrap_or_else(|i| i);
+
+            result.insert(pos, (dst, index));
+            let _ = result.pop();
         }
     }
 }
