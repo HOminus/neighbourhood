@@ -20,7 +20,7 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: "1.78.0"
+          toolchain: "1.79.0"
           components: rustfmt, clippy
           override: true
       - name: Cargot check formatting
@@ -35,7 +35,7 @@ jobs:
         run: cargo doc
       - uses: EmbarkStudios/cargo-deny-action@v1
         with:
-          rust-version: "1.78.0"
+          rust-version: "1.79.0"
           arguments: --all-features
 
   comparison-validation:
