@@ -31,6 +31,20 @@ fn neighbourhood_query(c: &mut Criterion) {
     });
 }
 
+fn count_neighbourhood_query(c: &mut Criterion) {
+    const NUM_POINTS: usize = 200_000;
+    const SEED: u64 = 0;
+    const EPSILON: f64 = 0.5;
+    c.bench_function("CountNeighbourhoodQuery", |b| {
+        let points: Vec<[f64; 3]> = random_points(NUM_POINTS, -10., 10., SEED);
+        let kd_tree = KdTree::new(points);
+        b.iter(|| {
+            let neighbours = kd_tree.count_neighbourhood(&[0., 0., 0.], EPSILON);
+            std::hint::black_box(neighbours);
+        });
+    });
+}
+
 fn optimal_brute_force_size(c: &mut Criterion) {
     const NUM_POINTS: usize = 200_000;
     const EPSILON: f64 = 0.5;
@@ -59,6 +73,7 @@ criterion_group!(
     benches,
     buildup,
     neighbourhood_query,
+    count_neighbourhood_query,
     optimal_brute_force_size
 );
 criterion_main!(benches);
