@@ -296,7 +296,7 @@ impl<'a, T: Float + Clone, const N: usize> KdIndexTree<'a, T, N> {
             return vec![];
         }
         let mut subtree_distance = [T::zero(); N];
-        let mut result = vec![];
+        let mut result = Vec::with_capacity(k);
 
         let params = KnnParams {
             point,
