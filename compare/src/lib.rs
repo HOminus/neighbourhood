@@ -80,7 +80,7 @@ pub fn sort_query_result<T: num_traits::Float, const N: usize>(p: &[T; N], pts: 
 }
 
 // A unified KdTree Api. Useful for testing.
-pub trait UnifiedKdTreeTestApi<T: num_traits::Float, const N: usize> {
+pub trait UnifiedKdTreeTestApi<T: num_traits::Float + std::fmt::Debug, const N: usize> {
     //fn new(data: &'a [[T; N]]) -> Self;
 
     fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]>;
@@ -93,7 +93,7 @@ pub trait UnifiedKdTreeTestApi<T: num_traits::Float, const N: usize> {
 pub mod nh {
     pub struct KdTree<T: num_traits::Float, const N: usize>(neighbourhood::KdTree<T, N>);
 
-    impl<T: num_traits::Float, const N: usize> KdTree<T, N> {
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> KdTree<T, N> {
         pub fn new(data: &[[T; N]]) -> Self {
             Self(neighbourhood::KdTree::with_brute_force_size(
                 data.to_vec(),
@@ -102,7 +102,9 @@ pub mod nh {
         }
     }
 
-    impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T, N> {
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
+        for KdTree<T, N>
+    {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
             let result = self.0.neighbourhood(p, eps);
             let mut points: Vec<_> = result.into_iter().cloned().collect();
@@ -126,13 +128,13 @@ pub mod nh {
         neighbourhood::KdIndexTree<'a, T, N>,
     );
 
-    impl<'a, T: num_traits::Float, const N: usize> KdIndexTree<'a, T, N> {
+    impl<'a, T: num_traits::Float + std::fmt::Debug, const N: usize> KdIndexTree<'a, T, N> {
         pub fn new(data: &'a [[T; N]]) -> Self {
             Self(neighbourhood::KdIndexTree::with_brute_force_size(data, 0))
         }
     }
 
-    impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
         for KdIndexTree<'_, T, N>
     {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
@@ -245,7 +247,9 @@ pub mod kdtree {
         }
     }
 
-    impl<T: num_traits::Float, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T, N> {
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
+        for KdTree<T, N>
+    {
         fn query_within(&self, p: &[T; N], eps: T, points: &[[T; N]]) -> Vec<[T; N]> {
             let result = self
                 .0
@@ -365,7 +369,10 @@ pub mod kd_tree {
     #[allow(clippy::missing_transmute_annotations)]
     impl<T, const N: usize> crate::UnifiedKdTreeTestApi<T, N> for KdTree<T>
     where
-        T: num_traits::Float + num_traits::float::FloatCore + num_traits::NumAssign,
+        T: num_traits::Float
+            + num_traits::float::FloatCore
+            + num_traits::NumAssign
+            + std::fmt::Debug,
     {
         fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
             let mut points = unsafe {
