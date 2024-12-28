@@ -149,7 +149,6 @@ impl BenchmarkResult {
             .push(timing);
     }
 
-
     fn print_cnstr_timings(&self) {
         let mut keys: Vec<_> = self.construction.keys().collect();
         keys.sort_by_key(|k| *k);
@@ -448,7 +447,8 @@ fn benchmark_kiddo_kdtree(
     for knn in knns {
         let now = Instant::now();
         for p in query_points {
-            let r = kiddo_kdtree.nearest_n::<kiddo::SquaredEuclidean>(p, core::num::NonZero::new(*knn).unwrap());
+            let r = kiddo_kdtree
+                .nearest_n::<kiddo::SquaredEuclidean>(p, core::num::NonZero::new(*knn).unwrap());
             std::hint::black_box(r);
         }
         let timing = now.elapsed();
