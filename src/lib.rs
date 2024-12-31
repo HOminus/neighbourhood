@@ -6,6 +6,8 @@ extern crate alloc;
 pub mod kd_index_tree;
 pub mod kd_tree;
 
+use core::marker::PhantomData;
+
 pub use kd_index_tree::KdIndexTree;
 pub use kd_tree::KdTree;
 
@@ -23,6 +25,15 @@ struct KnnParams<'a, T, const N: usize> {
     point: &'a [T; N],
     k: core::num::NonZero<usize>,
     brute_force_size: usize,
+}
+
+#[derive(Copy, Clone)]
+struct FilteredKnnParams<'a, T, const N: usize, P, F: Fn(P) -> bool> {
+    point: &'a [T; N],
+    k: core::num::NonZero<usize>,
+    brute_force_size: usize,
+    filter: &'a F,
+    _p: PhantomData<P>,
 }
 
 #[inline]
