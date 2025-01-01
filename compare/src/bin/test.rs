@@ -18,7 +18,7 @@ struct Args {
     kdtree: Vec<String>,
 
     #[arg(long)]
-    eps: f64
+    eps: f64,
 }
 
 fn run_test<const N: usize>(num_points: usize, iterations: u64, kdtrees: &[String], eps: f64) {
