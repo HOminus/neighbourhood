@@ -197,6 +197,8 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         let mut result = 0;
         let next_row = (row + 1) % N;
 
+        result += Self::count_neighbourhood_recursive(subtree1, params, subtree_distance, next_row);
+
         let row_value = subtree_distance[row];
         subtree_distance[row] = params.point[row] - split_point[row];
         if norm(subtree_distance) <= params.epsilon {
@@ -205,7 +207,6 @@ impl<T: Float + Clone, const N: usize> KdTree<T, N> {
         }
         subtree_distance[row] = row_value;
 
-        result += Self::count_neighbourhood_recursive(subtree1, params, subtree_distance, next_row);
         result
     }
 
