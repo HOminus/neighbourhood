@@ -71,5 +71,5 @@ jobs:
         working-directory: compare
         run: |
           cargo build --bin test --bin knn_test --release
-          cargo run --bin test --release -- --num-points 500000 --dim 10 --iterations 5 --kdtree kiddo
+          cargo run --bin test --release -- --num-points 500000 --dim 10 --iterations 5 --kdtree kiddo --eps 0.1
           cargo run --bin knn_test --release -- --num-points 100000 --dim 3 --iterations 5 --knn 5 --kdtree kiddo
