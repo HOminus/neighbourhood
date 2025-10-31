@@ -1,5 +1,5 @@
 use rand::{
-    distributions::{
+    distr::{
         uniform::{SampleBorrow, SampleUniform},
         Distribution, Uniform,
     },
@@ -20,7 +20,7 @@ pub fn make_points<
     let mut points = Vec::with_capacity(num_points);
     let mut rng = rand::rngs::SmallRng::seed_from_u64(seed);
 
-    let distr = Uniform::new_inclusive(l, h);
+    let distr = Uniform::new_inclusive(l, h).unwrap();
     for _ in 0..num_points {
         let mut p: [S; N] = [S::default(); N];
         for item in p.iter_mut() {
