@@ -39,6 +39,8 @@ fn run_knn_test<const N: usize>(
                 as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
             Box::new(compare::nh::KdIndexTree::new(&points))
                 as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
+            Box::new(compare::nh::KdTreeByIndex::new(&points))
+                as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
         ];
 
         for name in kdtrees {

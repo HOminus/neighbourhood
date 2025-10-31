@@ -34,6 +34,8 @@ fn run_test<const N: usize>(num_points: usize, iterations: u64, kdtrees: &[Strin
                 as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
             Box::new(compare::nh::KdIndexTree::new(&points))
                 as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
+            Box::new(compare::nh::KdTreeByIndex::new(&points))
+                as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
         ];
 
         for name in kdtrees {
@@ -84,6 +86,7 @@ fn run_count_test<const N: usize>(num_points: usize, iterations: u64, kdtrees: &
                 as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
             Box::new(compare::nh::KdIndexTree::new(&points))
                 as Box<dyn compare::UnifiedKdTreeTestApi<f64, N>>,
+            //KdTreeByIndex does not make a lot of sense here
         ];
 
         for name in kdtrees {
