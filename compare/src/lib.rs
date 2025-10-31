@@ -124,6 +124,39 @@ pub mod nh {
         }
     }
 
+    pub struct KdTreeByIndex<T: num_traits::Float, const N: usize>(neighbourhood::KdTree<T, N>);
+
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> KdTreeByIndex<T, N> {
+        pub fn new(data: &[[T; N]]) -> Self {
+            Self(neighbourhood::KdTree::with_brute_force_size(
+                data.to_vec(),
+                0,
+            ))
+        }
+    }
+
+    impl<T: num_traits::Float + std::fmt::Debug, const N: usize> crate::UnifiedKdTreeTestApi<T, N>
+        for KdTreeByIndex<T, N>
+    {
+        fn query_within(&self, p: &[T; N], eps: T, _: &[[T; N]]) -> Vec<[T; N]> {
+            let result = self.0.neighbourhood_by_index(p, eps);
+            let mut points: Vec<_> = result.into_iter().map(|i| self.0.data()[i]).collect();
+            crate::sort_query_result(p, &mut points);
+            points
+        }
+
+        fn count_within(&self, _p: &[T; N], _eps: T) -> usize {
+            unimplemented!("This function does not exist on an by_index basis.")
+        }
+
+        fn knn(&self, p: &[T; N], k: usize, _: &[[T; N]]) -> Vec<[T; N]> {
+            let result = self.0.knn_by_index(p, k);
+            let mut points: Vec<_> = result.into_iter().map(|v| self.0.data()[v.1]).collect();
+            crate::sort_query_result(p, &mut points);
+            points
+        }
+    }
+
     pub struct KdIndexTree<'a, T: num_traits::Float, const N: usize>(
         neighbourhood::KdIndexTree<'a, T, N>,
     );

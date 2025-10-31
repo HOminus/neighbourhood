@@ -3,7 +3,9 @@ use num_traits::Float;
 
 pub mod count_neighbourhood;
 pub mod knn;
+pub mod knn_by_index;
 pub mod neighbourhood;
+pub mod neighbourhood_by_index;
 
 pub struct KdTree<T, const N: usize> {
     data: Vec<[T; N]>,
