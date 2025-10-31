@@ -1,7 +1,7 @@
 extern crate alloc;
 
 use rand::{
-    distributions::{
+    distr::{
         uniform::{SampleBorrow, SampleUniform},
         Distribution, Uniform,
     },
@@ -21,7 +21,7 @@ pub fn random_points<
     let mut points = alloc::vec::Vec::with_capacity(num_points);
     let mut rng = rand::rngs::SmallRng::seed_from_u64(seed);
 
-    let distr = Uniform::new_inclusive(min, max);
+    let distr = Uniform::new_inclusive(min, max).unwrap();
     for _ in 0..num_points {
         let mut p: [S; N] = [S::default(); N];
         for pi in p.iter_mut() {
